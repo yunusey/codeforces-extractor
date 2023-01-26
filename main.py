@@ -1,4 +1,4 @@
-import requests, sys, os
+import requests, sys, os, time
 
 
 def write_to_file(path: str, text: str) -> None:
@@ -9,7 +9,6 @@ def write_to_file(path: str, text: str) -> None:
 def writeProblems(path: str, problems: dict) -> None:
     path = path + '/' if not path.endswith('/') else path
     for i in problems.keys():
-        print(f"Problem #{i}:", problems[i])
         folder_name = path + str(i) + '/'
         if not os.path.isdir(folder_name):
             os.makedirs(folder_name)
@@ -24,6 +23,7 @@ def getInputPrompts(text: str) -> list:
     ans = []
     pattern = '<div class="input"><div class="title">Input</div><pre>'
     end = '</pre></div>'
+    real_ind = 0
     while True:
         ind = text.find(pattern)
         if ind == -1:
@@ -31,7 +31,8 @@ def getInputPrompts(text: str) -> list:
         text = text[ind + len(pattern) : ]
         end_ind = text.find(end)
         s = text[ : end_ind]
-        ans.append(s)
+        real_ind += ind + len(pattern)
+        ans.append((s, real_ind))
 
     return ans
 
@@ -39,6 +40,7 @@ def getOutputPrompts(text: str) -> list:
     ans = []
     pattern = '<div class="output"><div class="title">Output</div><pre>'
     end = '</pre></div>'
+    real_ind = 0
     while True:
         ind = text.find(pattern)
         if ind == -1:
@@ -46,7 +48,8 @@ def getOutputPrompts(text: str) -> list:
         text = text[ind + len(pattern) : ]
         end_ind = text.find(end)
         s = text[ : end_ind]
-        ans.append(s)
+        real_ind += ind + len(pattern)
+        ans.append((s, real_ind))
 
     return ans
 
@@ -74,97 +77,95 @@ def parseLongText(text: str):
     return last
 
 
-def parseInput(a: list) -> list:
-    ans = []
-    for i in a:
-        pattern = '<div class="test-example-line'
-        if pattern in i:
-            i = parseLongText(i)
-            if i.startswith('\n'):
-                i = i[1:]
-            if i.endswith('\n'):
-                i = i[:-1]
-            ans.append(i)
-        else:
-            i = str(i)
-            if i.startswith('\n'):
-                i = i[1:]
-            if i.endswith('\n'):
-                i = i[:-1]
-            ans.append(i)
-    return ans
-
-
-def parseOutput(a: list) -> list:
-    ans = []
-    for i in a:
+def parseInput(i: str) -> str:
+    pattern = '<div class="test-example-line'
+    if pattern in i:
+        i = parseLongText(i)
+        if i.startswith('\n'):
+            i = i[1:]
+        if i.endswith('\n'):
+            i = i[:-1]
+    else:
         i = str(i)
         if i.startswith('\n'):
             i = i[1:]
         if i.endswith('\n'):
             i = i[:-1]
-        ans.append(i)
-    return ans
+    return i
 
-def getProblem(link: str, problem: str) -> tuple:
-    complete_link = link + 'problem/' + problem
-    message = requests.get(complete_link)
-    text = message.text
 
-    input_list = getInputPrompts(text)
-    output_list = getOutputPrompts(text)
-    input_list = parseInput(input_list)
-    output_list = parseOutput(output_list)
+def parseOutput(i: str) -> str:
+    if i.startswith('\n'):
+        i = i[1:]
+    if i.endswith('\n'):
+        i = i[:-1]
+    return i
 
-    return (input_list, output_list)
-
-def getProblemNames(link: str, number: int) -> list:
-
+def getText(link: str) -> str:
     message = requests.get(link)
     text = message.text
+    return text
 
-    problem_names = []
+def getProblemNames(text: str) -> list:
 
+    last = []
+    pattern = '<div class="header"><div class="title">'
+    real_ind = 0
     while True:
-        pattern = f'<a href="/contest/{number}/problem/'
         ind = text.find(pattern)
         if ind == -1:
             break
+        
+        ind += len(pattern)
+        problem_name = text[ind] if text[ind + 1] == '.' else text[ind : ind + 2]
+        real_ind += ind
+        last.append((problem_name, real_ind))
+        text = text[ind:]
 
-        if text[ind + len(pattern) + 1] == '"':
-            name = text[ind + len(pattern)]
+    return last
+
+def match(problems: list, inputs: list, outputs: list) -> dict:
+    last = {}   
+    problem_ind = 0
+    for index in range(len(inputs)):
+        input_prompt, ind = inputs[index]
+        output_prompt = outputs[index][0]
+        pair = (input_prompt, output_prompt)
+        if problem_ind + 1 >= len(problems) or problems[problem_ind + 1][1] > ind:
+            if not problems[problem_ind][0] in last:
+                last[problems[problem_ind][0]] = []
+            last[problems[problem_ind][0]].append(pair)
         else:
-            name = text[ind + len(pattern) : ind + len(pattern) + 2]
-        text = text[ind + len(pattern):]
+            problem_ind += 1
+            if not problems[problem_ind][0] in last:
+                last[problems[problem_ind][0]] = []
+            last[problems[problem_ind][0]].append(pair)
 
-        if not name in problem_names:
-            problem_names.append(name)
-    
-    return problem_names
-
-def solveForEachProblem(problems: list, link: str) -> dict:
-    last = {}
-    for i in problems:
-        print("Problem #" + i)
-        last[i] = []
-        getProblem(link, i)
-        a, b = getProblem(link, i)
-        for j in range(len(a)):
-            print("Input #", j + 1)
-            print(a[j])
-            print("Output #", j + 1)
-            print(b[j])
-            last[i].append((a[j], b[j]))
-        print("---")
     return last
 
 def main(number: int, path: str) -> None:
-    link = f'https://codeforces.com/contest/{number}/'
-    problems = getProblemNames(link, number)
-    last = solveForEachProblem(problems, link)
-    print(last)
+    link = f'https://codeforces.com/contest/{number}/problems/'
+    text = getText(link)
+    problems = getProblemNames(text)
+    input_prompts  = getInputPrompts(text)
+    output_prompts = getOutputPrompts(text)
+    last = match(problems, input_prompts, output_prompts)
+    for i in last.keys():
+        print("Problem # %s" % i)
+        for tc in range(len(last[i])):
+            inp, out = last[i][tc]
+            inp, out = parseInput(inp), parseOutput(out)
+            print("Input: ")
+            print(inp)
+            print("Output: ")
+            print(out)
+            last[i][tc] = (inp, out)
     writeProblems(path=path, problems=last)
 
 if __name__ == '__main__':
     number = int(sys.argv[1])
+    timer = time.time()
     main(number, './test/')
+    diff = time.time() - timer
+    print(f"It took {diff} seconds to execute the program...")
+
