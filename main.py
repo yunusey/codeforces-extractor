@@ -164,8 +164,11 @@ def main(number: int, path: str) -> None:
 
 if __name__ == '__main__':
     number = int(sys.argv[1])
+    default_path = "./test/"
+    path = str(sys.argv[2]) if len(sys.argv) >= 3 else default_path
+    path = f"{path}/" if not path.endswith('\n') else path
     timer = time.time()
-    main(number, './test/')
+    main(number, path)
     diff = time.time() - timer
     print(f"It took {diff} seconds to execute the program...")
 
