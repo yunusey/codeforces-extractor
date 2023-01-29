@@ -13,8 +13,8 @@ def writeProblems(path: str, problems: dict) -> None:
         if not os.path.isdir(folder_name):
             os.makedirs(folder_name)
         for tc_ind, tc in enumerate(problems[i], 1):
-            file_name_input  = folder_name + "I" + str(tc_ind)
-            file_name_output = folder_name + "O" + str(tc_ind)
+            file_name_input  = folder_name + "I" + str(tc_ind) + '.txt'
+            file_name_output = folder_name + "O" + str(tc_ind) + '.txt'
             write_to_file(file_name_input,  tc[0])
             write_to_file(file_name_output, tc[1])
 
