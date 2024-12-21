@@ -90,6 +90,7 @@ fn parse_output(problem_node: &tl::Node, parser: &tl::Parser) -> Vec<String> {
                 .get(parser)
                 .unwrap()
                 .inner_text(parser)
+                .trim()
                 .to_string();
             Some(output)
         })
