@@ -1,26 +1,48 @@
 # codeforces-extractor
-Program for extracting codeforces data.
+Blazingly fast codeforces problem extractor! *Rust btw!*
 
-# Explanation
-So since copying the testcases from the browser everytime makes us lose time, I wanted to get the data from the website and store it locally in order run each testcase from commandline quickly. I actually saw some people who are doing this, however, I didn't see any repository about it. So I made one for myself, and wanted to share it with everyone so anyone can use. 
+> [!WARNING] Old Version of the Project
+> Before, the tool was written in Python. If you want to stick to the old version, you can check out the [`python` branch](https://github.com/yunusey/codeforces-extractor/tree/python).
 
-# Usage & Configuration/Personalization
-To get the data from the contest, you should pass the contest no. For example if you want to get them from this contest, https://codeforces.com/contest/1720/problems you need to pass 1720 to program:
-```cmd
-python main.py 1770
+## Installation 📦
+You can install this tool using:
+```bash
+cargo install --git https://github.com/yunusey/codeforces-extractor
 ```
 
-The program, as default, copies them to the current working directory's ```test/``` folder. So basically ```./test/``` folder. If you want to change it, you can change this line:
-```python
-main(number, './test/')
+## Usage 📝
+Using this tool is pretty simple. The command takes two arguments:
+```bash
+codeforces-extractor <contest_id> --save-path <path>
 ```
-to
-```python
-main(number, 'path/to/the/directory/')
+You need to provide both the arguments (they do not have default values).
+
+## Features 🚀
+The tool will save the test cases like this:
+```
+ ./test
+├──  A
+│  ├──  0.in
+│  └──  0.out
+├──  B
+│  ├──  0.in
+│  └──  0.out
+├──  C
+│  ├──  0.in
+│  └──  0.out
+├──  D
+│  ├──  0.in
+│  └──  0.out
+├──  E
+│  ├──  0.in
+│  └──  0.out
+├──  F
+│  ├──  0.in
+│  └──  0.out
+└──  G
+   ├──  0.in
+   └──  0.out
 ```
 
-# TODO
-I am using [neovim](https://github.com/neovim/neovim) as the IDE or PDE currently. So I want to write a plugin that will execute everything in commandline, and integrate with neovim's features very well.
-
-# Contribution
-If you liked this project, please leave a star. If you have any questions about the project, you can create an issue. If you have any idea to get the project better, you can do some stuff and push. I think it would be fun!
+## Use with Neovim 🛠️
+The main reason for this tool is to be used with Neovim. You can check the plugin [here](https://github.com/yunusey/codeforces-nvim).
