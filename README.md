@@ -1,7 +1,7 @@
 # codeforces-extractor
 Blazingly fast codeforces problem extractor! *Rust btw!*
 
-> [!WARNING] Old Version of the Project
+> [!WARN] Old Version of the Project
 > Before, the tool was written in Python. If you want to stick to the old version, you can check out the [`python` branch](https://github.com/yunusey/codeforces-extractor/tree/python).
 
 ## Installation 📦
