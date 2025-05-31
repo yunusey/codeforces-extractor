@@ -3,8 +3,8 @@ mod parser;
 use std::fs;
 
 use clap::Parser;
-use reqwest;
 use parser::{parse_content, Problem};
+use reqwest;
 
 #[derive(Debug, Parser)]
 struct Args {
@@ -12,10 +12,9 @@ struct Args {
     contest_name: String,
 
     /// Save Path
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "./problems")]
     save_path: std::path::PathBuf,
 }
-
 
 async fn get_content(contest_name: &str) -> String {
     let client = reqwest::Client::new();
@@ -62,13 +61,19 @@ async fn main() {
 async fn test_parser() {
     let content = get_content("1790").await;
     let problems: Vec<Problem> = parse_content(&content);
-    assert_eq!(problems.iter().map(|p: &Problem| p.name.clone()).collect::<Vec<String>>(), vec![
-        "A. Polycarp and the Day of Pi".to_string(),
-        "B. Taisia and Dice".to_string(),
-        "C. Premutation".to_string(),
-        "D. Matryoshkas".to_string(),
-        "E. Vlad and a Pair of Numbers".to_string(),
-        "F. Timofey and Black-White Tree".to_string(),
-        "G. Tokens on Graph".to_string(),
-    ]);
+    assert_eq!(
+        problems
+            .iter()
+            .map(|p: &Problem| p.name.clone())
+            .collect::<Vec<String>>(),
+        vec![
+            "A. Polycarp and the Day of Pi".to_string(),
+            "B. Taisia and Dice".to_string(),
+            "C. Premutation".to_string(),
+            "D. Matryoshkas".to_string(),
+            "E. Vlad and a Pair of Numbers".to_string(),
+            "F. Timofey and Black-White Tree".to_string(),
+            "G. Tokens on Graph".to_string(),
+        ]
+    );
 }
