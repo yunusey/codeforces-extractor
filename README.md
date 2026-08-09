@@ -4,18 +4,25 @@ Blazingly fast Codeforces test extractor! *Rust btw!*
 > [!CAUTION]
 > Before, the project was written in Python. Due to several reasons, it is now rewritten in Rust and is more performant and convenient to use.
 
-## Update on January 14, 2026 (Please Read Carefully!)
-
-It appears that, recently, Codeforces has taken new measures to block bots trying to scrape data from the website. As a result of that, we have to simulate a browser--a very simple `curl` will not do the job.
-
-**Please note that this project's goal is to offer a better developer experience in *testing* and is only interested in, thus, scraping the test cases from the website. Please consult to Codeforces's policy statement for more information.**
-
-If you have been using `codeforces-extractor` directly or through [`codeforces-nvim`](https://github.com/yunusey/codeforces-nvim) for some time and noticed that the program isn't working correctly anymore, please update it by running `cargo install --git https://github.com/yunusey/codeforces-extractor`.
-
 ## Installation
 You can install this tool using:
 ```bash
 cargo install --git https://github.com/yunusey/codeforces-extractor
+```
+
+### Requirements
+Because Codeforces is behind a bot challenge, this tool launches a real Chromium-based browser via [`chromiumoxide`](https://crates.io/crates/chromiumoxide). You need one of the following available:
+
+- `chromium`, `google-chrome`, or another Chromium-based browser on your `PATH`, **or**
+- the `CHROME` environment variable pointing at the browser executable
+
+Firefox, Zen, and other non-Chromium browsers are **not** supported.
+
+If you see `Failed to get content for contest: ...`, the underlying cause is often that no Chrome/Chromium binary could be detected (`Could not auto detect a chrome executable`). Fix it by installing Chromium/Chrome, or by setting:
+
+```bash
+export CHROME=/path/to/chromium
+codeforces-extractor 1790
 ```
 
 ## Usage
