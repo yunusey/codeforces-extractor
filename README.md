@@ -1,8 +1,5 @@
 # codeforces-extractor
-Blazingly fast Codeforces test extractor! *Rust btw!*
-
-> [!CAUTION]
-> Before, the project was written in Python. Due to several reasons, it is now rewritten in Rust and is more performant and convenient to use.
+Blazingly fast Codeforces test extractor in Rust.
 
 ## Installation
 You can install this tool using:
